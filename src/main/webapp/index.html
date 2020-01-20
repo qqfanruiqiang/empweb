@@ -170,6 +170,119 @@
 
 
     }
+    function xiugai(data) {
+        var bumen;
+        var lingdao;
+        var gangwei;
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        $.ajax({
+            url:"http://localhost:8086/emp/queryEmpById",
+            type:"post",
+            datatype:"json",
+            data:{
+                "id":data
+            },
+            success:function (result) {
+                $("#id").val(result.id);
+                $("#name").val(result.name);
+                $("#salary").val(result.salary);
+                $("#entryTime").val(new Date(result.entryTime).Format(pattern="yyyy-MM-dd"));
+            bumen=result.deptId;
+            lingdao=result.leaderId;
+            gangwei=result.jobId;
+                },
+            error:function () {
+                alert("根据Id查询员工失败");
+            }
+        })
+        $.ajax({
+            url:"http://localhost:8086/emp/queryJob",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#job1").html(strs);
+                $("#job1 option[value="+gangwei+"]").prop("selected",true);
+            },
+            error:function () {
+                alert("查询岗位下拉框失败");
+            }
+        })
+        $.ajax({
+            url:"http://localhost:8086/emp/queryLeader",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#leader1").html(strs);
+                $("#leader1 option[value="+lingdao+"]").prop("selected",true);
+            },
+            error:function () {
+                alert("查询领导下拉框失败");
+            }
+        })
+        $.ajax({
+            url:"http://localhost:8086/emp/queryDept",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#dept1").html(strs);
+                $("#dept1 option[value="+bumen+"]").prop("selected",true);
+            },
+            error:function () {
+                alert("查询部门下拉框失败");
+            }
+        })
+        var ee=$("#updateHtml").html();
+        bootbox.confirm({
+            title:'修改信息',
+            message:ee,
+            buttons:{
+                confirm:{
+                    lable:'提交',
+                    className:'btn-success'
+                },
+                cancel:{
+                    lable:'取消',
+                    className:'btn-danger'
+                }},
+            size:'large',
+            callback:function (res) {
+                if(res){
+                    $.ajax({
+                        url:"http://localhost:8086/emp/updateEmp",
+                        type:"post",
+                        datatype:"json",
+                        data:$("#updateform").serialize(),
+                        success:function () {
+                            alert("修改成功!")
+                            empTable.ajax.reload();
+                        },
+                        error:function () {
+                            alert("修改失败");
+                        }
+                    })
+                }
+            }
+
+
+        })
+
+
+    }
 </script>
 <script type="text/html" id="addHtml">
     <form id="addform">
@@ -181,7 +294,17 @@
         领导:<select id="leader" name="leaderId"></select><br>
     </form>
 </script>
-
+<script type="text/html" id="updateHtml">
+    <form id="updateform">
+        <input name="id" type="hidden" id="id">
+        员工姓名:<input  id="name" name="name"><br>
+        工资:<input  id="salary" name="salary"><br>
+        入职时间:<input id="entryTime" name="entryTime" onclick="WdatePicker()" ><br>
+        岗位:<select id="job1" name="jobId"></select><br>
+        部门:<select id="dept1" name="deptId" ></select><br>
+        领导:<select id="leader1" name="leaderId"></select><br>
+    </form>
+</script>
 
 
 </html>
