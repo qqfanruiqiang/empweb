@@ -26,6 +26,7 @@
         <!-- Default panel contents -->
         <div class="panel-heading">员工列表</div>
         <div class="panel-body">
+            <input type="button" onclick="xinzeng()" class="btn btn-success" value="新增">
             <table id="empTable" class="table table-bordered table-striped"></table>
         </div>
     </div>
@@ -82,9 +83,104 @@
         }
 
     })
+    function xinzeng() {
+//+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+        $.ajax({
+            url:"http://localhost:8086/emp/queryJob",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#job").html(strs);
+            },
+            error:function () {
+                alert("查询岗位下拉框失败");
+            }
+        })
+        $.ajax({
+            url:"http://localhost:8086/emp/queryLeader",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#leader").html(strs);
+            },
+            error:function () {
+                alert("查询领导下拉框失败");
+            }
+        })
+        $.ajax({
+            url:"http://localhost:8086/emp/queryDept",
+            type:"post",
+            datatype:"json",
+            data:{},
+            success:function (result) {
+                var strs="<option value=0>请选择</option>";
+                for(var i=0;i<result.length;i++){
+                    strs+="<option value="+result[i].id+">" +result[i].name+"</option>";
+                }
+                $("#dept").html(strs);
+            },
+            error:function () {
+                alert("查询部门下拉框失败");
+            }
+        })
+        var ee=$("#addHtml").html();
+        bootbox.confirm({
+            title:'新增信息',
+            message:ee,
+            buttons:{
+                confirm:{
+                    lable:'提交',
+                    className:'btn-success'
+                },
+                cancel:{
+                    lable:'取消',
+                    className:'btn-danger'
+                }},
+            size:'large',
+            callback:function (res) {
+                if(res){
+                    $.ajax({
+                        url:"http://localhost:8086/emp/addEmp",
+                        type:"post",
+                        datatype:"json",
+                        data:$("#addform").serialize(),
+                        success:function () {
+                            alert("新增成功!")
+                            empTable.ajax.reload();
+                        },
+                        error:function () {
+                            alert("新增失败");
+                        }
+                    })
+                }
+            }
 
+
+        })
+
+
+    }
 </script>
-
+<script type="text/html" id="addHtml">
+    <form id="addform">
+        员工姓名:<input   name="name"><br>
+        工资:<input   name="salary"><br>
+        入职时间:<input name="entryTime" onclick="WdatePicker()" ><br>
+        岗位:<select id="job" name="jobId"></select><br>
+        部门:<select id="dept" name="deptId" ></select><br>
+        领导:<select id="leader" name="leaderId"></select><br>
+    </form>
+</script>
 
 
 
